@@ -1,0 +1,360 @@
+% FILE: /home/jstvns/GPLC/MEMORIA/sections/futuro.tex
+
+\newpage
+\section{Limitaciones y Trabajo Futuro}\label{sec:limitaciones-trabajo-futuro}
+
+
+Este capítulo tiene como objetivo presentar, de
+manera crítica, las principales limitaciones
+identificadas durante el desarrollo del intérprete
+de GPLC y proponer líneas de trabajo futuro para
+superar dichas limitaciones. En este trabajo, el
+intérprete se concibió como un prototipo de
+investigación: su foco principal es materializar
+la semántica del lenguaje, permitir la ejecución
+de programas y servir como plataforma para
+experimentar con la gradualidad tanto en tipos
+como en probabilidades. En consecuencia, existen
+aspectos del sistema que se privilegiaron
+(corrección semántica y fidelidad a la formulación
+teórica) por sobre otros (optimización o escalabilidad a
+programas de mayor tamaño).
+
+
+
+En las siguientes subsecciones, se organizan las
+limitaciones en categorías que reflejan el tipo de
+dificultad observada: \textbf{i.} potenciales
+imprecisiones semánticas o errores de
+implementación, \textbf{ii.} evaluación de probabilidades
+simbólicas en el output, \textbf{iii.} eficiencia de la resolución de
+fórmulas, \textbf{iv.} rediseño de tipado para operaciones
+binarias, \textbf{v.} ausencia de mecanismos de igualdad
+para testing semántico, y \textbf{vi.} costos
+computacionales asociados a \lstinline|Let| y
+\lstinline|Dascr| en el AST destino.
+
+\subsection{Imprecisiones Semánticas y/o Errores de Implementación}\label{subsec:lim-bugs}
+
+Durante la implementación y la experimentación con
+la ejecución de programas se identificaron
+resultados no esperados. Estos casos pueden
+deberse, por una parte, a errores de
+implementación y, por otra, a errores en la
+especificación original del lenguaje, los cuales
+podrían manifestarse como comportamientos no
+esperados en una implementación que sigue dicha
+formulación de manera literal. Distinguir ambas
+fuentes es esencial para definir líneas de
+trabajo: en el primer caso corresponde corregir el
+código y en el segundo, podría ser necesaria una
+rectificación de la semántica
+utilizada en la implementación.
+
+
+
+Un ejemplo ilustrativo es el siguiente programa del código
+\ref{lst:bug}, donde se observa que la distribución final contiene
+valores que no coinciden con la intuición del usuario sobre la
+ejecución. En el resultado, dos valores son compatibles con la
+interpretación intuitiva: \lstinline|[Bool]true :: ?| y
+\lstinline|[Real]13 :: Real|.  Sin embargo, aparecen además: \textbf{i.} un
+error dinámico \lstinline|ERROR(?)|, que indica que una ascripción con
+tipo desconocido no pudo validarse en tiempo de ejecución, y \textbf{ii.} un
+valor \lstinline|[Real]13 :: ?| que indica que, en algún punto del
+pipeline, el valor $13$ fue ascrito con tipo desconocido, a pesar
+de que en el código \ref{lst:bug} no hay ningún elemento sintáctico
+que haga la ascripción \lstinline|:: ?| necesaria o esperable.
+
+\begin{gplcblock}[caption={Distribución con valores no esperados},label={lst:bug}]
+? $ (true :: ?) : 13
+
+>>>
+
+{
+  [Bool] true :: ? : SymProb19 ,
+  ERROR(?): SymProb20 ,
+  [Real] 13. :: ? : SymProb21 ,
+  [Real] 13. :: Real : SymProb22
+}
+\end{gplcblock}
+
+La evidencia hallada durante el desarrollo, indica
+que este tipo de fenómeno se sitúa en la
+evaluación de la ascripción de distribución en el
+AST destino. Dicho nodo tiene la estructura
+\lstinline|Dascr(e,m,nu)|, donde \lstinline|e| es
+la evidencia, \lstinline|m| es la subexpresión, y
+\lstinline|nu| es el tipo ascrito. Primero se
+evalúa \verb|m| a una distribución de valores \verb|V|, y
+luego se asigna a cada valor \verb|V| una evidencia y
+un tipo de \verb|nu| para chequear consistencia en
+tiempo de ejecución. En el proceso de asignar a cada valor de
+\verb|V| una evidencia y un tipo de nu, hay asignaciones
+que no se hacen correctamente, si los valores
+\lstinline|[Real]13::?| y \lstinline|ERROR(?)| se van a considerar como no
+esperados en V
+
+\paragraph{Trabajo Futuro.}
+En trabajo futuro, estos casos deben ser aislados y reproducidos de
+manera sistemática, con el fin de establecer con claridad si el
+comportamiento no esperado proviene de un error de implementación o de
+un problema en la formulación teórica del lenguaje presentada en el
+paper de referencia.  En particular, el caso del código~\ref{lst:bug}
+requiere una revisión focalizada de la evaluación de \lstinline|Dascr|
+en el AST destino, pues en dicha etapa se reconstruyen
+correspondencias entre valores, tipos.
+Una vez identificada la causa,
+corresponde corregir el algoritmo (si es un bug) o 
+rectificar la regla (si el fenómeno proviene de la
+especificación). 
+
+\subsection{Evaluación de Probabilidades Simbólicas}\label{subsec:lim-prob-simbolicas}
+
+Actualmente, el intérprete retorna distribuciones simbólicas de
+valores en las cuales las probabilidades están representadas por
+variables simbólicas. Sin embargo, la fórmula asociada a la
+distribución, que restringe los valores reales simultáneos que estas
+variables pueden tomar, no se muestra en el output.  Si bien las
+funcionalidades que realizan la impresión de fórmulas están
+implementadas en el código, el volumen de información contenido en una
+fórmula correspondiente a un programa no trivial, suele ser demasiado
+grande para entregar una información interpretable por el usuario, y
+por esta razón se omite en el output.  En consecuencia, el resultado
+observado por el usuario corresponde esencialmente a listado de
+valores asociados a un pesos variables, pero no a las restricciones
+que hacen que el sistema sea soluble y semánticamente válido.
+
+Esta decisión de diseño resulta útil en el contexto experimental del
+prototipo, pues permite observar con claridad el los valores que
+contiene el soporte de una distribución, y verificar que un programa
+termina exitosamente. No obstante, incluso en este contexto, resulta
+valioso contar con mecanismos que expresen el resultado de manera
+numérica, instanciando las probabilidades simbólicas cuando el usuario
+lo requiera.
+
+ \paragraph{Trabajo Futuro.}
+ Un trabajo futuro natural es mejorar la forma en que el intérprete
+ comunica el resultado al usuario. En primer lugar, sería valioso
+ permitir que la ejecución muestre la fórmula que restringe las
+ probabilidades, de manera parcial y estratégica y en un formato que
+ favorezca su legibilidad, pues la fórmula explica qué asignaciones
+ reales son compatibles con la distribución retornada.  En segundo
+ lugar, sería deseable habilitar un modo de instanciación de
+ probabilidades simbólicas, ya sea extrayendo un modelo desde el
+ solver cuando exista, o permitiendo que el usuario entregue valores
+ para las probabilidades desconocidas \lstinline|?|.
+
+\subsection{Resolución Incremental de Fórmulas}\label{subsec:lim-incremental}
+
+En el intérprete, la satisfacibilidad de fórmulas se utiliza de forma
+transversal: es un paso esencial para determinar consistencia,
+precisión, el meet de tipos de distribución, y para validar
+restricciones heredadas o acumuladas en tiempo de ejecución. En la
+implementación actual, la función \lstinline|solve| que conecta el
+intérprete con el solucionador Z3 se comporta como una \textit{caja
+  negra} que recibe fórmulas y retorna únicamente un valor booleano
+(true si existe solución, false si no). Este diseño favorece una
+integración simple del solver dentro del prototipo, pero impide
+reutilizar trabajo entre chequeos sucesivos: cada invocación construye
+un contexto nuevo del solver, vuelve a traducir la fórmula completa a
+expresiones nativas de Z3 y a resolverla, encareciendo el cómputo
+cuando estas verificaciones se repiten frecuentemente durante la
+evaluación, lo cual ocurre generalmente.
+
+Esta limitación se vuelve especialmente relevante en operaciones entre
+distribuciones (por ejemplo, durante un \lstinline|meet|), donde la
+fórmula a resolver se construye por acumulación de restricciones pues
+se incluyen las fórmulas de las distribuciones argumento y se agregan
+nuevas variables y ecuaciones asociadas al coupling . En este
+escenario, aunque las subfórmulas heredadas puedan asumirse satisfacibles
+(un invariante garantizado por el flujo del intérprete), una solución para
+una subfórmula no necesariamente se extiende a una solución del
+sistema global, porque la operación introduce restricciones
+adicionales.
+
+\paragraph{Trabajo Futuro.}
+Un trabajo futuro relevante es explorar un enfoque incremental que
+permita reutilizar información entre chequeos sucesivos, reduciendo el
+costo de resolver sistemas que se forman, en parte, por acumulación de
+restricciones ya chequeadas. Sin embargo, esta mejora debe diseñarse
+con cuidado, dado que, incluso si una subfórmula es soluble, su
+solución no necesariamente es compatible con una solución del sistema
+completo cuando se agregan nuevas restricciones. Por ello, una
+dirección razonable es reutilizar contexto y restricciones de manera
+segura, sin asumir extensibilidad automática de subfórmulas.
+
+\subsection{Tipado de Operaciones Binarias}\label{subsec:lim-binops}
+
+En la formulación implementada, las operaciones binarias aritméticas y
+booleanas exigen que sus operandos sean consistentes con
+\lstinline|Real| o \lstinline|Bool|, respectivamente. Una vez
+satisfecha esta condición, el tipo de la operación se interpreta como
+una distribución Dirac sobre el tipo correspondiente (intuitivamente,
+una distribución cuyo soporte contiene un único tipo con probabilidad
+1). Este diseño es coherente con la idea de que toda expresión denota
+una distribución. Sin embargo, genera una tensión en el sistema:
+existen construcciones en el lenguaje (como aplicación de abstracción,
+ascripción simple, operaciones binarias, y condiciones de un
+\lstinline|if|) que esperan un término de tipo simple (un valor), no
+un término cuyo tipo inferido sea una distribución (aunque sea Dirac).
+
+
+Como consecuencia, expresiones como \lstinline|(1+1)+7|,
+\lstinline|(f (1 + 1))| o \lstinline|(1 + 1) :: Real| evidencian una
+ambigüedad conceptual: la subexpresión \lstinline|(1 + 1)| puede verse
+como un valor simple \lstinline|Real| o como una distribución
+\lstinline|{Real:1}|. En el prototipo, esta tensión no se resolvió
+mediante un rediseño del sistema de tipos, ya que el foco principal
+del trabajo fue implementar la gradualidad en tipos de distribución y
+en probabilidades desconocidas.
+
+\paragraph{Trabajo Futuro.}
+Esta limitación sugiere la necesidad de un rediseño que compatibilice
+la interpretación de expresiones como distribuciones con los
+contextos del lenguaje que esperan valores simples, como en los
+ejemplos mencionados. Una línea de trabajo futuro consiste en
+introducir un mecanismo explícito que permita tratar, por ejemplo,
+\lstinline|{Real:1}| como \lstinline|Real| cuando el contexto lo
+requiera, o bien adoptar un sistema de tipado más sensible al tipo
+esperado por el contexto. En particular, uno de los desafíos está dado
+por el hecho de que la elaboración transforma las operaciones binarias
+en $\LetKW$ (el cual está típicamente asociado a la generación de
+distribuciones), como se muestra a continuación:
+\begin{equation*}
+  v1 + v2  \mathrel{\leadsto} \LetTerm{x}{\eascr{\epsilon_1}{v_1}{\Real}}{\LetTerm{y}{\eascr{\epsilon_2}{v_2}{\Real}}{x+y}}
+\end{equation*}
+Sería importante, por lo tanto, distinguir
+en el lenguaje destino entre los $\LetKW$ insertados
+por la elaboración para chequear los valores
+sumados, y aquellos que provienen de un $\LetKW$ en el
+lenguaje fuente.
+
+
+\subsection{Equivalencia Semántica y Testing}\label{subsec:lim-igualdad}
+
+Una limitación importante para la validación sistemática es la
+ausencia de un operador o mecanismo interno para comprobar igualdad
+entre dos expresiones (o entre dos distribuciones resultantes). Sin
+una noción de igualdad, resulta difícil automatizar tests que comparen
+un resultado esperado con el que produce una expresión. Una
+funcionalidad de este tipo tendría especial importancia para verificar
+equivalencia semántica entre expresiones del lenguaje fuente,
+comparando las distribuciones de valores que generan. Por ejemplo,
+sería deseable poder contrastar directamente los programas:
+\begin{itemize}
+\item \lstinline|let x = (0.5 $ 1 : true) in 0.5 $ 1 : x| 
+\item \lstinline|0.75 $ 1 : true|.
+\end{itemize}
+
+
+En el estado actual, lo más cercano a una comparación consiste en
+ascribir manualmente un tipo de distribución esperado y verificar que
+el programa termina sin error (código \ref{lst:pseudo-comparison}), lo
+que es una condición necesaria pero no suficiente para equivalencia
+semántica.
+
+\begin{gplcblock}[caption={Verificación de tipo de distribución},label={lst:pseudo-comparison}]
+(let x = (0.5 $ 1 : true) in  0.5 $ 1 : x ) :: {Real : 0.75, Bool : 0.25}
+
+>>>
+
+{
+	 [Real] 1. :: Real : SymProb95 ,
+	 [Real] 1. :: Real : SymProb96 ,
+	 [Real] 1. :: Real : SymProb97 ,
+	 [Bool] true :: Bool : SymProb98 
+}  
+\end{gplcblock}
+
+
+\paragraph{Trabajo futuro.}
+Una extensión importante del lenguaje sería
+incorporar un mecanismo para comparar expresiones
+del lenguaje fuente por equivalencia semántica, lo
+que se traduce en comparar las distribuciones de
+valores que dichas expresiones generan. Para ello
+será necesario definir primero qué significa
+igualdad entre valores (incluyendo el rol del tipo
+ascrito) y decidir cómo tratar valores
+funcionales, que se evalúan a clausuras. Con esa
+base, podría definirse una noción de igualdad
+entre distribuciones que considere tanto el
+soporte como las restricciones sobre
+probabilidades simbólicas. En presencia de
+probabilidades desconocidas, también resulta natural estudiar
+una igualdad parcial: distribuciones
+que coinciden para algún conjunto no vacío de
+instanciaciones de probabilidades simbólicas.
+
+\subsection{Ineficiencia de \lstinline|Dascr| y \lstinline|Let|}\label{subsec:lim-eficiencia}
+
+La evaluación de \lstinline|Let| y
+\lstinline|Dascr| es un proceso computacionalmente
+costoso.  Esto se debe a dos razones
+estructurales. Primero, ambos constructos aparecen
+con alta frecuencia en el AST destino: La
+elaboración reestructura varios términos fuentes
+en \verb|Let|, y inserta ascripciones de distribución.  Segundo, su evaluación ejecuta
+operaciones entre distribuciones de tipo que, en
+el peor caso, crecen combinatoriamente: si dos
+distribuciones de tipo con tamaños $m$
+y $n$, se combinan mediante una operación como
+meet o reorder\footnote{explicar omisión}, la distribución resultante puede
+alcanzar tamaño $m \times n$ antes de descartar
+combinaciones de tipos simples inválidas.
+
+La implementación de las operaciones entre
+distribuciones de tipos se basa en la construcción
+de un coupling simbólico (una matriz de variables
+frescas, con dimensión $m\times n$) cuyas variables
+se usan para construir y resolver el sistema de
+restricciones que valida la operación (ver sección
+\ref{par:symbolic}). Dicho sistema, en conjunción
+con las fórmulas heredadas de las distribuciones
+sobre las que se opera, pasa a ser la fórmula de la
+distribución resultante.  Este enfoque es
+directo y cuida la claridad y fidelidad a la
+definición, pero es muy costoso en tiempo y
+memoria cuando se repite de manera profunda y
+recurrente en la recursión estructural de la
+evaluación sobre el AST destino.
+
+\paragraph{Trabajo futuro.}
+Dado que \lstinline|Let| y \lstinline|Dascr| aparecen con alta
+frecuencia en el AST destino y gatillan operaciones costosas entre
+distribuciones, un trabajo futuro relevante es estudiar estrategias
+para reducir el crecimiento del tamaño de distribuciones y fórmulas
+durante la evaluación. En términos generales, esto apunta a evitar
+combinaciones innecesarias en operaciones $m\times n$, y a simplificar
+distribuciones y restricciones antes de delegar al solver. El objetivo
+sería mejorar la escalabilidad del prototipo, permitiendo ejecutar
+programas más grandes y observar comportamientos que hoy quedan fuera
+por costo computacional.
+
+
+\subsection{Resumen}\label{subsec:lim-resumen}
+
+En síntesis, el intérprete desarrollado cumple su propósito como
+plataforma experimental para ejecutar programas de GPLC y observar su
+comportamiento con respecto a la gradualidad de probabilidades y
+tipado. Sin embargo, el prototipo deja abiertas varias líneas de
+mejora.  Por una parte, existen casos puntuales donde el
+comportamiento relacionado con ascripciones requiere una
+revisión cuidadosa para distinguir entre errores de implementación y
+posibles imprecisiones en la formulación teórica original. Por otra,
+la salida actual prioriza la visualización de valores y sus probabilidades simbólicas
+, pero no incluye las restricciones (fórmula) que controlan
+dichas probabilidades, lo que solo permite una interpretación limitada del
+resultado cuando el usuario necesita probabilidades numéricas. Además,
+el uso intensivo del solver hace que operaciones frecuentes
+(especialmente, las asociadas a \lstinline|Let| y \lstinline|Dascr|
+durante la evaluación) se vuelvan costosas y dificulten escalar a
+programas más grandes. Finalmente, el diseño actual del tipado --donde
+operaciones binarias producen por defecto distribuciones Dirac--
+genera problemas en contextos que esperan valores simples, y la ausencia
+de una noción de igualdad entre expresiones impide automatizar pruebas
+de equivalencia semántica. El trabajo futuro debería apuntar a
+cerrar estas brechas manteniendo la corrección semántica, pero
+mejorando la informatividad del output, la reutilización de cómputo en
+la resolución de fórmulas y la eficiencia general del intérprete.
