@@ -1,0 +1,166 @@
+% FILE: ~/GPLC/MEMORIA/memoria.tex
+
+
+% ========================================================================
+%
+%  Índice de Archivos
+%  ------------------
+%  Estos son los archivos que contienen cada una de las secciones de
+%  la memoria.
+% 
+%  ~/GPLC/MEMORIA/sections/introduccion.tex
+%  ~/GPLC/MEMORIA/sections/marco_teorico.tex
+%  ~/GPLC/MEMORIA/sections/gradual_typing.tex
+%  ~/GPLC/MEMORIA/sections/lenguaje.tex
+%  ~/GPLC/MEMORIA/sections/arquitectura.tex
+%  ~/GPLC/MEMORIA/sections/implementacion.tex
+%  ~/GPLC/MEMORIA/sections/validacion.tex
+%  ~/GPLC/MEMORIA/sections/futuro.tex
+%  ~/GPLC/MEMORIA/sections/conclusiones.tex      
+%
+% ========================================================================
+
+
+
+
+
+\documentclass[informe, guia]{upropuesta}
+%\documentclass[informe]{upropuesta}
+
+
+
+\title{Desarrollo de un Intérprete para un Lenguaje Gradual Probabilístico}
+\author{Jonnathan Stevens S.}
+\guia{Matías Toro, Federico Olmedo}
+\date{2025}
+
+
+
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{xurl}
+\usepackage{caption}
+\usepackage[normalem]{ulem}
+
+\usepackage{array}
+%\usepackage{parskip}
+%\setlength{\parindent}{0pt}
+%\setlength{\parskip}{\baselineskip}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{tabularx}
+\usepackage{cancel}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{inconsolata}
+\SetAlFnt{\ttfamily\small}
+\usepackage[utf8]{inputenc}
+\usepackage{enumitem}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{mathpartir}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{amssymb}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage{mathrsfs}
+\usepackage[nameinlink]{cleveref}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\setlength{\parindent}{0pt}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{float}
+\usepackage{lineno}
+\usepackage{baskervald}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[style=authoryear, backend=biber, maxnames=1, minnames=1]{biblatex}
+\addbibresource{bibliografia.bib}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     \cite{key}	(Smith, 2020)
+%     \citeauthor{key} Smith
+\usepackage{subcaption}
+%     \citealt{key}	Smith, 2020
+%     \citealp{key}	Smith 2020
+
+
+% env de pseudocódigo en castellano
+\definecolor{phasebg}{RGB}{245,247,250}
+\definecolor{rulegray}{RGB}{210,214,220}
+
+
+\input{macro}
+\input{command/utils}
+
+% "~/GPLC/MEMORIA/config/config.tex"
+\input{config/config}
+\input{config/config-lst}
+
+
+% Numerar solo hasta subsubsection
+\setcounter{secnumdepth}{3}
+
+%mostrar \paragraph en el índice
+\setcounter{tocdepth}{4}
+
+
+%%\usepackage[fixlanguage]{babelbib}
+\usepackage{url}
+\graphicspath{{imagenes/}}
+
+
+% \AtBeginDocument{
+%   \setlength{\parindent}{15pt}
+%   \setlength{\parskip}{0pt}
+%   \captionsetup{skip=3pt}
+%   \setlength{\belowcaptionskip}{10pt}
+%   \captionsetup{belowskip=10pt}
+% }
+
+\AtBeginDocument{%
+  \setlength{\parindent}{0pt}% 
+  \setlength{\parskip}{0.5\baselineskip}%
+}
+
+
+\begin{document}
+
+\linenumbers
+\maketitle
+\tableofcontents
+
+
+
+\input{/home/jstvns/GPLC/MEMORIA/sections/introduccion.tex}
+% 1 : '~/GPLC/MEMORIA/sections/introduccion.tex'
+
+\input{/home/jstvns/GPLC/MEMORIA/sections/marco_teorico.tex}
+% 2: '/home/jstvns/GPLC/MEMORIA/sections/marco_teorico.tex'
+
+% \input{/home/jstvns/GPLC/MEMORIA/sections/gradual_typing.tex}
+% 3 : '/home/jstvns/GPLC/MEMORIA/sections/gradual_typing.tex'
+
+\input{/home/jstvns/GPLC/MEMORIA/sections/lenguaje.tex} 
+% 4 : '/home/jstvns/GPLC/MEMORIA/sections/lenguaje.tex'
+
+\input{/home/jstvns/GPLC/MEMORIA/sections/arquitectura.tex}
+% 5 : '/home/jstvns/GPLC/MEMORIA/sections/arquitectura.tex'
+
+\input{/home/jstvns/GPLC/MEMORIA/sections/implementacion.tex}
+% 6 : '/home/jstvns/GPLC/MEMORIA/sections/implementacion.tex'
+
+\input{/home/jstvns/GPLC/MEMORIA/sections/validacion.tex}
+% 7 : '/home/jstvns/GPLC/MEMORIA/sections/validacion.tex'
+
+\input{/home/jstvns/GPLC/MEMORIA/sections/futuro.tex}
+% 8 : '/home/jstvns/GPLC/MEMORIA/sections/futuro.tex'
+
+\input{/home/jstvns/GPLC/MEMORIA/sections/conclusiones.tex}
+% 9 : '/home/jstvns/GPLC/MEMORIA/sections/conclusiones.tex'
+
+\newpage
+\printbibliography[title={Referencias}]
+\end{document}
