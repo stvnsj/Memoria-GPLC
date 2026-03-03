@@ -1,0 +1,157 @@
+
+% =========
+%  COLORS
+% =========
+\definecolor{blue}{RGB}{12, 100, 200}
+\definecolor{LightGray}{gray}{0.9}
+\definecolor{Transparent}{gray}{1.0}
+\definecolor{DarkGray}{RGB}{17,17,17}
+\definecolor{White}{RGB}{200,200,200}
+\definecolor{ForestGreen}{RGB}{0,250,0}
+\definecolor{Goldenrod}{RGB}{250,250,0}
+\definecolor{Magenta}{RGB}{0,250,50}
+\definecolor{Red}{RGB}{ 191, 72, 72 }
+\definecolor{Green}{RGB}{ 34, 107, 26 }
+\definecolor{Purple}{RGB}{114, 69, 156}
+\definecolor{CodeBG}{RGB}{230,230,230}
+\definecolor{CodeFG}{RGB}{ 0,0,0}
+\definecolor{codebg}{RGB}{238,241,246}
+\definecolor{kw}{RGB}{66, 117, 158}
+\definecolor{ty}{RGB}{95,45,120}
+\definecolor{typecolor}{RGB}{245,73,39}
+\definecolor{op}{RGB}{50,50,50}
+\definecolor{com}{RGB}{60,110,80}
+\definecolor{str}{RGB}{130,60,60}
+\definecolor{sep}{RGB}{120,120,120}
+\definecolor{err}{RGB}{160,0,0}
+\definecolor{framegray}{RGB}{120,120,120}
+\definecolor{weightcolor}{RGB}{40,90,40}
+\definecolor{boolcolor}{RGB}{52, 105, 37}
+\definecolor{exprcolor}{RGB}{66, 117, 158}
+
+
+
+
+
+% Caption style
+\DeclareCaptionFormat{listing}{\centering\small\textbf{Código \thelstlisting:} #3}
+\captionsetup[lstlisting]{format=listing, singlelinecheck=false, margin=0pt, font={small}}
+
+
+
+% =========================
+%  GPLC Listing Language
+% =========================
+\lstdefinelanguage{GPLC}{
+  sensitive=true,
+  morecomment=[l]{//},
+  morestring=[b]",
+  morekeywords={let,in,if,then,else},
+  morekeywords=[2]{true,false},
+  morekeywords=[3]{OUTPUT,Static,Run-Time,Syntax,Error},
+  morekeywords=[4]{Real,Bool},
+  literate=
+  {lambda}{{{\color{kw}$\boldsymbol{\lambda}$}}}6
+  {?}{{{\bfseries\color{typecolor}\ttfamily ?}}}1
+  {\$}{{{\color{op}\ttfamily\$}}}1
+  {::}{{{\color{op}\ttfamily::}}}2
+  {->}{{{\color{typecolor}\ttfamily->}}}2
+}
+
+
+\lstdefinestyle{gplc-style}{
+  language=GPLC,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries\color{kw},
+  keywordstyle=[2]\bfseries\color{boolcolor},
+  keywordstyle=[3]\bfseries\color{err},
+  keywordstyle=[4]\bfseries\color{typecolor},
+  commentstyle=\itshape\color{com},
+  stringstyle=\color{str},
+  backgroundcolor=\color{codebg},
+  columns=fullflexible,
+  aboveskip=6pt,
+  belowskip=6pt,
+  rulecolor=\color{framegray},
+  keepspaces=true,
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{black},
+}
+
+% =========================
+% OCaml listings language 
+% =========================
+\lstdefinelanguage{OCAML}{
+  sensitive=true,
+  morecomment=[s]{(*}{*)},
+  morestring=[b]",
+  morekeywords={
+    and,as,assert,begin,class,constraint,do,done,downto,else,end,exception,external,
+    false,for,fun,function,functor,if,in,include,inherit,initializer,
+    lazy,let,match,method,module,mutable,new,nonrec,object,of,open,or,private,
+    rec,sig,struct,then,to,true,try,type,val,virtual,when,while,with
+  },
+  
+  morekeywords=[2]{
+    int,float,bool,char,string,unit,option,list,array,ref,
+    Some,None,Ok,Error,
+    Printf,Format,List,Array,String,Option,Result,Hashtbl,Map,Set
+  },
+  
+  morekeywords=[3]{
+    Error,Exception,Invalid_argument,Failure,Assert_failure,Not_found
+  },
+  morekeywords=[4]{
+    type,module,sig,struct,functor,val
+  },
+  literate=
+    {->}{{{\color{typecolor}\ttfamily->}}}2
+    {=>}{{{\color{op}\ttfamily=>}}}2
+    {<-}{{{\color{op}\ttfamily<-}}}2
+    {::}{{{\color{op}\ttfamily::}}}2
+    {:=}{{{\color{op}\ttfamily:=}}}2
+    {;;}{{{\color{sep}\ttfamily;;}}}2
+    {||}{{{\color{op}\ttfamily||}}}2
+    {lambda!}{{{${\lambda}$}}}7
+    {&&}{{{\color{op}\ttfamily\&\&}}}2
+    {<>}{{{\color{op}\ttfamily<>}}}2
+    {<=}{{{\color{op}\ttfamily<=}}}2
+    {>=}{{{\color{op}\ttfamily>=}}}2
+}
+
+\lstdefinestyle{ocaml-style}{
+  language=OCAML,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries\color{kw},
+  keywordstyle=[2]\bfseries\color{ty},
+  keywordstyle=[3]\bfseries\color{err},
+  keywordstyle=[4]\bfseries\color{typecolor},
+  commentstyle=\itshape\color{com},
+  stringstyle=\color{str},
+  backgroundcolor=\color{codebg},
+  columns=fullflexible,
+  lineskip=-1pt,
+  aboveskip=2pt,
+  belowskip=2pt,
+  keepspaces=true,
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{black},
+}
+
+
+% \lstset{style=ocaml-style}
+\lstset{style=gplc-style} % GPLC is default lst style
+
+
+\lstnewenvironment{ocamlblock}[1][]
+  {\Needspace{12\baselineskip}\lstset{style=ocaml-style,#1}}
+  {}
+
+
+\lstnewenvironment{gplcblock}[1][]
+  {\Needspace{12\baselineskip}\lstset{style=gplc-style,#1}}
+  {}
